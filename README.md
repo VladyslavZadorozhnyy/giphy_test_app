@@ -20,5 +20,6 @@
 - Kotlin coroutines
 - Clean Architecture
 - Giphy API
-- Glide library
-- Room library
+- Glide
+- Room
+- Koin
