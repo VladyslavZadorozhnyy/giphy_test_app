@@ -1,17 +1,19 @@
 package com.example.giphytestapp.di
 
-import com.example.cache.data.database.GifCache
-import com.example.cache.data.database.GifCacheImpl
-import com.example.cache.data.database.room.GifRoomDatabase
-import com.example.cache.data.storage.GifStorage
-import com.example.cache.data.storage.GifStorageImpl
+import com.bumptech.glide.Glide
+import com.example.cache.domain.repository.GifStorageRepository
+import com.example.cache.data.repository.GifStorageImpl
+import com.example.cache.domain.usecase.CacheGifUseCase
 import com.example.giphytestapp.common.Constants
 import com.example.giphytestapp.data.remote.GiphyAPI
 import com.example.giphytestapp.data.repository.GifRepositoryImpl
 import com.example.giphytestapp.domain.repository.GifRepository
-import com.example.giphytestapp.domain.usecase.get.GetGifsUseCase
-import com.example.giphytestapp.presentation.common.CollectionScreenViewModel
-import com.example.giphytestapp.presentation.ui.fragments.CollectionFragment
+import com.example.giphytestapp.domain.usecase.GetGifsUseCase
+import com.example.giphytestapp.domain.usecase.UploadGifsUseCase
+import com.example.giphytestapp.presentation.viewmodels.AppViewModel
+import com.example.giphytestapp.presentation.viewmodels.CollectionViewModel
+import com.example.giphytestapp.presentation.viewmodels.NavigationViewModel
+import com.example.offline.presentation.viewmodels.SearchesViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -19,8 +21,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 val appModule = module {
-
-    single { CollectionScreenViewModel() }
 
     single {
         Retrofit.Builder()
@@ -30,13 +30,21 @@ val appModule = module {
             .create(GiphyAPI::class.java)
     }
 
-    single { GetGifsUseCase() }
+    viewModel { AppViewModel(get(), get(), get()) }
 
-    single<GifStorage> { GifStorageImpl() }
+    viewModel { NavigationViewModel() }
 
-    single<GifCache> { GifCacheImpl(get(), get()) }
+    viewModel { CollectionViewModel() }
+
+    single { GetGifsUseCase(get(), get()) }
+
+    single { UploadGifsUseCase(get()) }
+
+    single { CacheGifUseCase(get(), get()) }
+
+    single { Glide.with(androidApplication()) }
+
+    single<GifStorageRepository> { GifStorageImpl() }
 
     single<GifRepository> { GifRepositoryImpl(get(), get()) }
-
-    single { GifRoomDatabase.getDatabase(androidApplication()) }
 }

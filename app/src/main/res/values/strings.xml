@@ -1,5 +1,17 @@
 <resources>
     <string name="app_name">GiphyTestApp</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="delete_dialog_title">Delete gif from collection</string>
+    <string name="delete_dialog_message">Gif will be deleted forever</string>
+    <string name="delete_dialog_positive_button">Yes</string>
+    <string name="delete_dialog_negative_button">No</string>
+
+    <string name="text_fragment_title">Text fragment title</string>
+    <string name="text_fragment_message">Text fragment message</string>
+    <string name="back_button_label">Back</string>
+
+    <string name="connection_lost">Connection lost</string>
+    <string name="connection_est">Connection established</string>
+
+    <string name="no_message">Message was not given</string>
 </resources>

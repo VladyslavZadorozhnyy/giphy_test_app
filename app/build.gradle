@@ -17,6 +17,19 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    sourceSets {
+        main {
+            res.srcDirs = [
+                'src/main/res/layouts/adapter_items',
+                'src/main/res/layouts/activities',
+                'src/main/res/layouts/fragments',
+                'src/main/res/layouts/dialogs',
+                'src/main/res/layouts',
+                'src/main/res'
+            ]
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -47,6 +60,7 @@ dependencies {
 
 //    Own-written modules dependencies
     implementation project(':features:cache')
+    implementation project(':features:offline')
 
 //    ViewPager dependencies
     implementation 'androidx.viewpager2:viewpager2:1.0.0'

@@ -1,32 +1,34 @@
 package com.example.giphytestapp.presentation.ui.fragments
 
-import android.app.Activity
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnticipateOvershootInterpolator
-import android.view.inputmethod.InputMethodManager
-import androidx.constraintlayout.widget.ConstraintSet
-import androidx.transition.ChangeBounds
-import androidx.transition.Transition
-import androidx.transition.TransitionManager
-import com.example.giphytestapp.R
+import android.widget.ImageView
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
+import com.example.giphytestapp.common.Constants
 import com.example.giphytestapp.databinding.FragmentCollectionBinding
-import com.example.giphytestapp.presentation.ui.recyclerviews.CollectionScrollListener
-import com.example.giphytestapp.presentation.ui.recyclerviews.ViewPagerAdapter
-import com.google.android.material.tabs.TabLayoutMediator
+import com.example.giphytestapp.domain.model.GifModel
+import com.example.giphytestapp.presentation.ui.fragments.DetailedFragment.Companion.DETAILED_GIF_KEY
+import com.example.giphytestapp.presentation.ui.recyclerviews.GifAdapter
+import com.example.giphytestapp.presentation.ui.recyclerviews.PaginationScrollListener
+import com.example.giphytestapp.presentation.viewmodels.AppViewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
-open class CollectionFragment : Fragment() {
-    private var searchViewVisible = false
-    val scrollListener = CollectionScrollListener(
-        scrollUpCallback = { onCollectionScrollUp() },
-        scrollDownCallback = { onCollectionScrollDown() },
-        buttonClickedCallback = { onFloatingButtonClicked() },
-    )
 
-    private val binding: FragmentCollectionBinding by lazy {
+class CollectionFragment: Fragment(), GifAdapter.Contract {
+    private val columnsNumber = 3
+    private val scrollSensitivityStep: Int = 25
+    private var scrollListener: PaginationScrollListener? = null
+
+    private val appViewModel by sharedViewModel<AppViewModel>()
+    private val recyclerViewAdapter by lazy { binding.recyclerView.adapter as? GifAdapter }
+
+    private val binding by lazy {
         FragmentCollectionBinding.inflate(layoutInflater)
     }
 
@@ -34,102 +36,97 @@ open class CollectionFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        setupTabLayout()
-        setupActionButton()
+        setupStateObserver()
+
+        if (arguments?.getString(TYPE_KEY) == COLUMN_TYPE) {
+            setupColumnRecycler()
+        } else {
+            setupTableRecycler()
+        }
+
         return binding.root
     }
 
-    private fun setupTabLayout() {
-        val viewPagerAdapter = ViewPagerAdapter(this)
-        binding.viewpager.adapter = viewPagerAdapter
-
-        TabLayoutMediator(binding.tabLayout, binding.viewpager) { tab, position ->
-            tab.text = viewPagerAdapter.getTabTitle(position)
-        }.attach()
-    }
-
-    private fun setupActionButton() {
-        binding.floatingButton.setOnClickListener {
-            scrollListener.onFloatingButtonClicked()
+    override fun loadGifToView(model: GifModel, imageView: ImageView) {
+        val circularProgressDrawable = CircularProgressDrawable(requireContext()).apply {
+            strokeWidth = 5f
+            centerRadius = 30f
+            start()
         }
+        appViewModel.collectionViewModel.loadGifToView(model, imageView, circularProgressDrawable)
     }
 
-    private fun setActionButtonIcon(resource: Int) {
-        binding.floatingButton.setImageResource(resource)
-    }
-
-    private fun processConstraintSet(constraintSet: ConstraintSet) {
-        val transition: Transition = ChangeBounds().apply {
-            interpolator = AnticipateOvershootInterpolator(1.0f)
-            duration = 100
-        }
-
-        TransitionManager.beginDelayedTransition(binding.constraintLayout, transition)
-        constraintSet.applyTo(binding.constraintLayout)
-    }
-
-    private fun openSearchBar() {
-        val constraintSet = ConstraintSet().also {
-            it.clone(binding.constraintLayout)
-        }
-
-        constraintSet.connect(
-            binding.tabLayout.id,
-            ConstraintSet.TOP,
-            binding.searchView.id,
-            ConstraintSet.BOTTOM,
-            0
+    override fun onGifClicked(position: Int) {
+        appViewModel.navigationViewModel.navigateTo(
+            DetailedFragment(),
+            Bundle().also { it.putInt(DETAILED_GIF_KEY, position) }
         )
-
-        processConstraintSet(constraintSet)
-        setActionButtonIcon(R.drawable.ic_cross)
     }
 
-    private fun closeSearchBar() {
-        val constraintSet = ConstraintSet().also {
-            it.clone(binding.constraintLayout)
-        }
+    private fun setupStateObserver() {
+        appViewModel.collectionViewModel.collectionState.observe(viewLifecycleOwner) { state ->
+            if (state.gifs.isNotEmpty()) {
+                recyclerViewAdapter?.updateItems(state.gifs)
+            }
 
-        constraintSet.connect(
-            binding.tabLayout.id,
-            ConstraintSet.TOP,
-            binding.constraintLayout.id,
-            ConstraintSet.TOP,
-            0
-        )
-
-        processConstraintSet(constraintSet)
-        setActionButtonIcon(R.drawable.ic_search)
-        hideKeyboard()
-    }
-
-    private fun hideKeyboard() {
-        (activity?.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager).let {
-            val view = requireActivity().currentFocus ?: View(activity)
-            it?.hideSoftInputFromWindow(view.windowToken, 0)
+            if (state.gifs.isNotEmpty() && state.gifs.last() != Constants.LOADING_ITEM) {
+                scrollListener?.loadingFinished()
+            }
         }
     }
 
-    private fun onCollectionScrollUp() {
-        setActionButtonIcon(R.drawable.ic_search)
-        binding.floatingButton.show()
+    private fun setupColumnRecycler() {
+        val columnLinearManager = LinearLayoutManager(requireContext(),
+            LinearLayoutManager.VERTICAL, false)
+
+        binding.recyclerView.adapter = GifAdapter(this, GifAdapter.COLUMN)
+        binding.recyclerView.layoutManager = columnLinearManager
+        setupScrollListener(columnLinearManager)
     }
 
-    private fun onCollectionScrollDown() {
-        if (searchViewVisible) {
-            closeSearchBar()
-            searchViewVisible = false
-        }
+    private fun setupTableRecycler() {
+        val tableLinearManager = GridLayoutManager(requireContext(), columnsNumber,
+            LinearLayoutManager.VERTICAL, false)
 
-        binding.floatingButton.hide()
+        binding.recyclerView.adapter = GifAdapter(this, GifAdapter.TABLE)
+        binding.recyclerView.layoutManager = tableLinearManager
+        setupScrollListener(tableLinearManager)
     }
 
-    private fun onFloatingButtonClicked() {
-        if (!searchViewVisible) {
-            openSearchBar()
-        } else {
-            closeSearchBar()
+    private fun setupScrollListener(linearLayoutManager: LinearLayoutManager) {
+        scrollListener = object : PaginationScrollListener(linearLayoutManager) {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (dy < -scrollSensitivityStep) {
+                    (parentFragment as? ControlsContract)?.onScrollUp()
+                } else if (dy > scrollSensitivityStep) {
+                    (parentFragment as? ControlsContract)?.onScrollDown()
+                }
+            }
+
+            override fun loadMoreItems() {
+                super.loadMoreItems()
+
+                appViewModel.processSearchQuery(
+                    queryIsNew = false,
+                    online = appViewModel.networkViewModel.networkState.value ?: true
+                )
+            }
         }
-        searchViewVisible = !searchViewVisible
+        scrollListener?.let {
+            binding.recyclerView.addOnScrollListener(it)
+        }
+    }
+
+    interface ControlsContract {
+        fun onScrollUp ()
+
+        fun onScrollDown ()
+    }
+
+    companion object {
+        const val TYPE_KEY = "key"
+        const val TABLE_TYPE = "Table"
+        const val COLUMN_TYPE = "Column"
     }
 }

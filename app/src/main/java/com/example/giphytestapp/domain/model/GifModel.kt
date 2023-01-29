@@ -1,6 +1,7 @@
 package com.example.giphytestapp.domain.model
 
-import com.example.cache.data.common.GifEntity
+import com.example.cache.common.Constants
+import com.example.cache.common.GifEntity
 import com.example.giphytestapp.data.remote.dto.BaseGifDto
 
 data class GifModel(
@@ -8,7 +9,6 @@ data class GifModel(
     val width: Int,
     val hash: String,
     val url: String = "",
-    val filePath: String = ""
 ) {
     companion object {}
 }
@@ -27,7 +27,7 @@ fun GifModel.Companion.fromGifEntity(entity: GifEntity): GifModel {
         width = entity.width,
         height = entity.height,
         hash = entity.hash,
-        filePath = entity.filePath,
+        url = entity.generateUri()
     )
 }
 
@@ -36,7 +36,10 @@ fun GifModel.toGifEntity(searchQuery: String): GifEntity {
         width = this.width,
         height = this.height,
         hash = this.hash,
-        filePath = this.filePath,
         searchQuery = searchQuery
     )
+}
+
+private fun GifEntity.generateUri(): String {
+    return "${Constants.DIR_PATH}/${hash}.gif"
 }

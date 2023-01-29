@@ -1,26 +1,33 @@
 package com.example.giphytestapp.presentation.ui.recyclerviews
 
+import android.os.Bundle
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.giphytestapp.presentation.ui.fragments.CollectionFragment
-import com.example.giphytestapp.presentation.ui.fragments.ColumnFragment
-import com.example.giphytestapp.presentation.ui.fragments.TableFragment
 
-class ViewPagerAdapter(parentFragment: Fragment) : FragmentStateAdapter(parentFragment) {
-    private val tabsTitles = listOf("Column view", "Table view")
+class ViewPagerAdapter(
+    parentFragment: Fragment
+) : FragmentStateAdapter(parentFragment) {
+    private val tabsTitles = listOf(
+        "${CollectionFragment.COLUMN_TYPE} view",
+        "${CollectionFragment.TABLE_TYPE} view"
+    )
 
     override fun getItemCount(): Int {
         return tabsTitles.size
     }
 
     override fun createFragment(position: Int): Fragment {
-        return when (position) {
-            0 -> ColumnFragment()
-            else -> TableFragment()
+        val fragment = CollectionFragment()
+        val bundle = Bundle()
+
+        when (position) {
+            0 -> bundle.putString(CollectionFragment.TYPE_KEY, CollectionFragment.COLUMN_TYPE)
+            else -> bundle.putString(CollectionFragment.TYPE_KEY, CollectionFragment.TABLE_TYPE)
         }
+
+        fragment.arguments = bundle
+        return fragment
     }
 
     fun getTabTitle(position: Int): String {
