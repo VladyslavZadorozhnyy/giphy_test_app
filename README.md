@@ -1,4 +1,4 @@
-## This repository is an implementation of a test task application for a position of Android developerin one of the companies.
+### This repository is an implementation of a test task application for a position of Android developerin one of the companies.
 
 ## Product Requirements description (Screen 1):
 - Displaying gif images as a list/table
