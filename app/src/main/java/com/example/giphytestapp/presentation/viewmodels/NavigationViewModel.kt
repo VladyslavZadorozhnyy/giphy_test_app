@@ -12,6 +12,10 @@ class NavigationViewModel : ViewModel() {
     private val _state = MutableLiveData(NavigationState())
     val state: LiveData<NavigationState> = _state
 
+    fun exitApplication() {
+        _state.value = NavigationState(NavigationAction.EXIT, null)
+    }
+
     fun removeLastFragment() {
         _state.value = NavigationState(NavigationAction.POP, null)
     }

@@ -1,4 +1,4 @@
-package com.example.offline.presentation.ui.fragments
+package com.example.giphytestapp.presentation.ui.fragments
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -6,13 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.giphytestapp.presentation.viewmodels.SearchesViewModel
 import com.example.offline.databinding.FragmentSearchQueryBinding
-import com.example.offline.domain.model.SearchQuery
 import com.example.offline.presentation.ui.recyclerviews.SearchQueryAdapter
-import com.example.offline.presentation.viewmodels.SearchesViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
-class SearchQueryFragment : Fragment(), SearchQueryAdapter.Contract {
+class SearchQueryFragment : Fragment() {
     private val binding by lazy { FragmentSearchQueryBinding.inflate(layoutInflater) }
     private val viewModel by sharedViewModel<SearchesViewModel>()
 
@@ -25,13 +24,11 @@ class SearchQueryFragment : Fragment(), SearchQueryAdapter.Contract {
         return binding.root
     }
 
-    override fun navigateToCollectionScreen(searchQuery: String) {
-        viewModel.navigateToCollection(searchQuery)
-    }
-
     private fun setupRecyclerView() {
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
-        binding.recyclerView.adapter =  SearchQueryAdapter(this)
+        binding.recyclerView.adapter =  SearchQueryAdapter().also {
+            it.onClickListener = { value -> viewModel.navigateToCollection(value) }
+        }
     }
 
     private fun setupSearchQueriesObserver() {

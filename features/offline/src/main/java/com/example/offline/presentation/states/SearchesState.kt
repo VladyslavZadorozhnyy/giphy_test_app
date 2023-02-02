@@ -4,4 +4,6 @@ import com.example.offline.domain.model.SearchQuery
 
 data class SearchesState(
     val searchQueries: List<SearchQuery> = listOf(),
+    val isLoading: Boolean = false,
+    val chosenQuery: String = ""
 )

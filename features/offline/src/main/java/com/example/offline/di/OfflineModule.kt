@@ -9,15 +9,12 @@ import com.example.offline.data.network.NetworkListener
 import com.example.offline.domain.usecase.ObserveNetworkUseCase
 import com.example.offline.domain.usecase.UploadSearchQueriesUseCase
 import com.example.offline.presentation.viewmodels.NetworkViewModel
-import com.example.offline.presentation.viewmodels.SearchesViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val offlineModule = module {
     viewModel { NetworkViewModel(get()) }
-
-    viewModel { SearchesViewModel(get()) }
 
     single { RemoveGifUseCase(get(), get()) }
 

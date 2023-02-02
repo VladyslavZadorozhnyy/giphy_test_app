@@ -1,6 +1,5 @@
 package com.example.offline.presentation.ui.recyclerviews
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,10 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.offline.R
 import com.example.offline.domain.model.SearchQuery
 
-class SearchQueryAdapter(
-    private val contract: Contract
-): RecyclerView.Adapter<SearchQueryAdapter.SearchQueryViewHolder>() {
+class SearchQueryAdapter: RecyclerView.Adapter<SearchQueryAdapter.SearchQueryViewHolder>() {
     private var items: List<SearchQuery> = listOf()
+    var onClickListener: ((String) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchQueryViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -22,7 +20,7 @@ class SearchQueryAdapter(
     }
 
     override fun onBindViewHolder(holder: SearchQueryViewHolder, position: Int) {
-        holder.bind(items[position], contract)
+        holder.bind(items[position], onClickListener)
     }
 
     override fun getItemCount(): Int {
@@ -34,16 +32,10 @@ class SearchQueryAdapter(
         notifyDataSetChanged()
     }
 
-    interface Contract {
-        fun navigateToCollectionScreen(searchQuery: String)
-    }
-
     class SearchQueryViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
-        fun bind(model: SearchQuery, contract: Contract) {
+        fun bind(model: SearchQuery, onClickListener: ((String) -> Unit)?) {
             (itemView as? TextView)?.text = model.value
-            itemView.setOnClickListener {
-                contract.navigateToCollectionScreen(model.value)
-            }
+            itemView.setOnClickListener { onClickListener?.invoke(model.value) }
         }
     }
 }

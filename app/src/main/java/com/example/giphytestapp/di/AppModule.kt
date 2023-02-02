@@ -12,6 +12,7 @@ import com.example.giphytestapp.domain.usecase.GetGifsUseCase
 import com.example.giphytestapp.domain.usecase.UploadGifsUseCase
 import com.example.giphytestapp.presentation.viewmodels.CollectionViewModel
 import com.example.giphytestapp.presentation.viewmodels.NavigationViewModel
+import com.example.giphytestapp.presentation.viewmodels.SearchesViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -29,6 +30,8 @@ val appModule = module {
     }
 
     viewModel { NavigationViewModel() }
+
+    viewModel { SearchesViewModel(get()) }
 
     viewModel { CollectionViewModel(get(), get(), get(), get()) }
 

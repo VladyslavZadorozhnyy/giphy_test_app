@@ -18,7 +18,6 @@ import com.example.giphytestapp.databinding.FragmentMainScreenBinding
 import com.example.giphytestapp.presentation.ui.recyclerviews.ViewPagerAdapter
 import com.example.giphytestapp.presentation.viewmodels.CollectionViewModel
 import com.example.giphytestapp.presentation.viewmodels.NavigationViewModel
-import com.example.offline.presentation.ui.fragments.SearchQueryFragment
 import com.example.offline.presentation.viewmodels.NetworkViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
