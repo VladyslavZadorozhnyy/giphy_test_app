@@ -16,13 +16,19 @@ import androidx.transition.TransitionManager
 import com.example.giphytestapp.R
 import com.example.giphytestapp.databinding.FragmentMainScreenBinding
 import com.example.giphytestapp.presentation.ui.recyclerviews.ViewPagerAdapter
-import com.example.giphytestapp.presentation.viewmodels.AppViewModel
+import com.example.giphytestapp.presentation.viewmodels.CollectionViewModel
+import com.example.giphytestapp.presentation.viewmodels.NavigationViewModel
 import com.example.offline.presentation.ui.fragments.SearchQueryFragment
+import com.example.offline.presentation.viewmodels.NetworkViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
+
 class MainScreenFragment : Fragment(), CollectionFragment.ControlsContract {
-    private val appViewModel by sharedViewModel<AppViewModel>()
+    private val networkVm by sharedViewModel<NetworkViewModel>()
+    private val navigationVm by sharedViewModel<NavigationViewModel>()
+    private val collectionVm by sharedViewModel<CollectionViewModel>()
+
     private var searchViewVisible = false
 
     private val binding: FragmentMainScreenBinding by lazy {
@@ -58,11 +64,8 @@ class MainScreenFragment : Fragment(), CollectionFragment.ControlsContract {
                     closeSearchBar()
                     binding.searchView.setQuery("", false)
 
-                    appViewModel.processSearchQuery(
-                        searchQuery = queryText,
-                        queryIsNew = true,
-                        online = appViewModel.networkViewModel.networkState.value ?: true
-                    )
+                    collectionVm.getGifs(searchQuery = queryText, queryIsNew = true,
+                        navigationModel = navigationVm, online = networkVm.stateOnline.value ?: true)
                 }
                 return true
             }
@@ -81,8 +84,8 @@ class MainScreenFragment : Fragment(), CollectionFragment.ControlsContract {
 
     private fun setupActionButton() {
         binding.floatingButton.setOnClickListener {
-            if (appViewModel.networkViewModel.networkState.value == false) {
-                appViewModel.navigationViewModel.navigateTo(SearchQueryFragment(), null)
+            if (networkVm.stateOnline.value == false) {
+                navigationVm.navigateTo(SearchQueryFragment(), null)
             } else {
                 if (!searchViewVisible) { openSearchBar() } else { closeSearchBar() }
             }

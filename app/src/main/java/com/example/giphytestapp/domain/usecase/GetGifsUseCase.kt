@@ -4,7 +4,6 @@ import com.example.cache.domain.repository.GifRoomRepository
 import com.example.giphytestapp.common.Constants.LOADING_ITEM
 import com.example.giphytestapp.common.Resource
 import com.example.giphytestapp.domain.model.GifModel
-import com.example.giphytestapp.domain.model.fromGifEntity
 import com.example.giphytestapp.domain.repository.GifRepository
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow

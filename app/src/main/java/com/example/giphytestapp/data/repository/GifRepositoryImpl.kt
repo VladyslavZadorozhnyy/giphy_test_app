@@ -4,7 +4,6 @@ import com.example.cache.domain.repository.GifRoomRepository
 import com.example.giphytestapp.common.Constants
 import com.example.giphytestapp.data.remote.GiphyAPI
 import com.example.giphytestapp.domain.model.GifModel
-import com.example.giphytestapp.domain.model.fromGifDto
 import com.example.giphytestapp.domain.repository.GifRepository
 import kotlin.math.ceil
 

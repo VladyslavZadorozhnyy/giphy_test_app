@@ -1,19 +1,18 @@
 package com.example.offline.presentation.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.offline.common.OfflineResource
-import org.koin.java.KoinJavaComponent.inject
 import com.example.offline.domain.usecase.UploadSearchQueriesUseCase
 import com.example.offline.presentation.states.SearchesState
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class SearchesViewModel : ViewModel() {
-    private val uploadSearchQueriesUseCase: UploadSearchQueriesUseCase by inject(UploadSearchQueriesUseCase::class.java)
+class SearchesViewModel(
+    private val uploadSearchQueriesUseCase: UploadSearchQueriesUseCase
+) : ViewModel() {
     private var contract: Contract? = null
 
     private val _queriesState = MutableLiveData(SearchesState())

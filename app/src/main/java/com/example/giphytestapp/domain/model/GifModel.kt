@@ -10,25 +10,21 @@ data class GifModel(
     val hash: String,
     val url: String = "",
 ) {
-    companion object {}
-}
+    companion object {
+        fun fromGifDto(dto: BaseGifDto) = GifModel(
+            dto.height.toInt(),
+            dto.width.toInt(),
+            dto.hash,
+            dto.url
+        )
 
-fun GifModel.Companion.fromGifDto(dto: BaseGifDto): GifModel {
-    return GifModel(
-        height = dto.height.toInt(),
-        width = dto.width.toInt(),
-        hash = dto.hash,
-        url = dto.url
-    )
-}
-
-fun GifModel.Companion.fromGifEntity(entity: GifEntity): GifModel {
-    return GifModel(
-        width = entity.width,
-        height = entity.height,
-        hash = entity.hash,
-        url = entity.generateUri()
-    )
+        fun fromGifEntity(entity: GifEntity) = GifModel(
+            entity.width,
+            entity.height,
+            entity.hash,
+            entity.generateUri()
+        )
+    }
 }
 
 fun GifModel.toGifEntity(searchQuery: String): GifEntity {

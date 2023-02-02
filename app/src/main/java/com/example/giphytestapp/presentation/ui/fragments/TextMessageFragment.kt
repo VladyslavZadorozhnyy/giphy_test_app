@@ -7,12 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.giphytestapp.R
 import com.example.giphytestapp.databinding.FragmentTextMessageBinding
-import com.example.giphytestapp.presentation.viewmodels.AppViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class TextMessageFragment(
 ) : Fragment() {
-    private val appViewModel by viewModel<AppViewModel>()
     private val binding by lazy { FragmentTextMessageBinding.inflate(layoutInflater) }
 
     override fun onCreateView(

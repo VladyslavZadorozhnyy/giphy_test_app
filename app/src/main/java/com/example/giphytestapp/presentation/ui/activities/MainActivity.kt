@@ -11,14 +11,19 @@ import com.example.giphytestapp.common.NavigationAction
 import com.example.giphytestapp.databinding.ActivityMainBinding
 import com.example.giphytestapp.presentation.ui.fragments.MainScreenFragment
 import com.example.giphytestapp.presentation.ui.fragments.ProgressFragment
-import com.example.giphytestapp.presentation.viewmodels.AppViewModel
+import com.example.giphytestapp.presentation.viewmodels.CollectionViewModel
+import com.example.giphytestapp.presentation.viewmodels.NavigationViewModel
 import com.example.offline.presentation.ui.fragments.NoInternetFragment
 import com.example.offline.presentation.ui.fragments.SearchQueryFragment
+import com.example.offline.presentation.viewmodels.NetworkViewModel
 import com.example.offline.presentation.viewmodels.SearchesViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity(), SearchesViewModel.Contract {
-    private val appViewModel by viewModel<AppViewModel>()
+    private val networkVm by viewModel<NetworkViewModel>()
+    private val navigationVm by viewModel<NavigationViewModel>()
+    private val collectionVm by viewModel<CollectionViewModel>()
+
     private val searchesViewModel by viewModel<SearchesViewModel>()
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
@@ -33,7 +38,7 @@ class MainActivity : AppCompatActivity(), SearchesViewModel.Contract {
     }
 
     private fun setupNavStateObserver() {
-        appViewModel.navigationViewModel.state.observe(this) { navState ->
+        navigationVm.state.observe(this) { navState ->
             if (navState.action == NavigationAction.POP) {
                 supportFragmentManager.popBackStack()
             }
@@ -54,13 +59,13 @@ class MainActivity : AppCompatActivity(), SearchesViewModel.Contract {
     }
 
     private fun setupOfflineStateObserver() {
-        appViewModel.networkViewModel.networkState.observe(this) { isOnline ->
+        networkVm.stateOnline.observe(this) { isOnline ->
             if (isOnline) {
                 Toast.makeText(this, resources.getString(AppR.string.connection_est), Toast.LENGTH_LONG).show()
-                appViewModel.navigationViewModel.navigateTo(MainScreenFragment(), null)
+                navigationVm.navigateTo(MainScreenFragment(), null)
             } else {
                 Toast.makeText(this, resources.getString(AppR.string.connection_lost), Toast.LENGTH_LONG).show()
-                appViewModel.navigationViewModel.navigateTo(NoInternetFragment(), null)
+                navigationVm.navigateTo(NoInternetFragment(), null)
             }
         }
     }
@@ -78,25 +83,21 @@ class MainActivity : AppCompatActivity(), SearchesViewModel.Contract {
     }
 
     override fun navigateToOffline() {
-        appViewModel.navigationViewModel.navigateTo(SearchQueryFragment(), null)
+        navigationVm.navigateTo(SearchQueryFragment(), null)
     }
 
     override fun navigateToLoading() {
-        appViewModel.navigationViewModel.navigateTo(ProgressFragment(), null)
+        navigationVm.navigateTo(ProgressFragment(), null)
     }
 
     override fun navigateToCollection(searchQuery: String) {
-        appViewModel.navigationViewModel.navigateTo(MainScreenFragment())
-        appViewModel.collectionViewModel.getGifs(
-            searchQuery = searchQuery,
-            queryIsNew = true,
-            online = false,
-            navigationModel = appViewModel.navigationViewModel
-        )
+        navigationVm.navigateTo(MainScreenFragment())
+        collectionVm.getGifs(searchQuery = searchQuery, queryIsNew = true,
+            online = false, navigationModel = navigationVm)
     }
 
     override fun removeLastFragment() {
-        appViewModel.navigationViewModel.removeLastFragment()
+        navigationVm.removeLastFragment()
     }
 
     override fun onBackPressed() {

@@ -4,21 +4,22 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.offline.domain.usecase.ObserveNetworkUseCase
-import org.koin.java.KoinJavaComponent
 
-class NetworkViewModel : ViewModel() {
+class NetworkViewModel(
+    private val observeNetworkUseCase: ObserveNetworkUseCase
+) : ViewModel() {
     private val _networkState = MutableLiveData(false)
-    val networkState: LiveData<Boolean> = _networkState
+    val stateOnline: LiveData<Boolean> = _networkState
 
-    private val observeNetworkUseCase: ObserveNetworkUseCase by KoinJavaComponent.inject(
-        ObserveNetworkUseCase::class.java
-    )
+    init {
+        startNetworkObserving()
+    }
 
     private fun updateState(newOnlineValue: Boolean) {
         if (_networkState.value != newOnlineValue) { _networkState.postValue(newOnlineValue) }
     }
 
-    fun startNetworkObserving() {
+    private fun startNetworkObserving() {
         observeNetworkUseCase(
             onAvailableCallback = { updateState(true) },
             onLostCallback = { updateState(false) }

@@ -15,9 +15,9 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val offlineModule = module {
-    viewModel { NetworkViewModel() }
+    viewModel { NetworkViewModel(get()) }
 
-    viewModel { SearchesViewModel() }
+    viewModel { SearchesViewModel(get()) }
 
     single { RemoveGifUseCase(get(), get()) }
 

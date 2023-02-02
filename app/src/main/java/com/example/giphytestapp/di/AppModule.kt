@@ -10,7 +10,6 @@ import com.example.giphytestapp.data.repository.GifRepositoryImpl
 import com.example.giphytestapp.domain.repository.GifRepository
 import com.example.giphytestapp.domain.usecase.GetGifsUseCase
 import com.example.giphytestapp.domain.usecase.UploadGifsUseCase
-import com.example.giphytestapp.presentation.viewmodels.AppViewModel
 import com.example.giphytestapp.presentation.viewmodels.CollectionViewModel
 import com.example.giphytestapp.presentation.viewmodels.NavigationViewModel
 import org.koin.android.ext.koin.androidApplication
@@ -29,11 +28,9 @@ val appModule = module {
             .create(GiphyAPI::class.java)
     }
 
-    viewModel { AppViewModel(get(), get(), get()) }
-
     viewModel { NavigationViewModel() }
 
-    viewModel { CollectionViewModel() }
+    viewModel { CollectionViewModel(get(), get(), get(), get()) }
 
     single { GetGifsUseCase(get(), get()) }
 

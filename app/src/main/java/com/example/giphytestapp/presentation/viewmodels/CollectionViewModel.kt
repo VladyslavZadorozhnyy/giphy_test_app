@@ -21,16 +21,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import org.koin.java.KoinJavaComponent.inject
 
-class CollectionViewModel : ViewModel() {
+
+class CollectionViewModel(
+    private val getGifsUseCase: GetGifsUseCase,
+    private val cacheGifUseCase: CacheGifUseCase,
+    private val removeGifUseCase: RemoveGifUseCase,
+    private val uploadGifsUseCase: UploadGifsUseCase,
+) : ViewModel() {
     private val _collectionState = MutableLiveData(CollectionState())
-    val collectionState: LiveData<CollectionState> = _collectionState
-
-    private val getGifsUseCase: GetGifsUseCase by inject(GetGifsUseCase::class.java)
-    private val cacheGifUseCase: CacheGifUseCase by inject(CacheGifUseCase::class.java)
-    private val removeGifUseCase: RemoveGifUseCase by inject(RemoveGifUseCase::class.java)
-    private val uploadGifsUseCase: UploadGifsUseCase by inject(UploadGifsUseCase::class.java)
+    val state: LiveData<CollectionState> = _collectionState
 
     private fun processNewSearch(searchQuery: String, online: Boolean, navigationViewModel: NavigationViewModel) {
         getGifsUseCase(
@@ -98,7 +98,7 @@ class CollectionViewModel : ViewModel() {
     }
 
     fun getGifs(
-        searchQuery: String,
+        searchQuery: String = "",
         queryIsNew: Boolean,
         online: Boolean,
         navigationModel: NavigationViewModel

@@ -16,7 +16,9 @@ import com.example.giphytestapp.domain.model.GifModel
 import com.example.giphytestapp.presentation.ui.fragments.DetailedFragment.Companion.DETAILED_GIF_KEY
 import com.example.giphytestapp.presentation.ui.recyclerviews.GifAdapter
 import com.example.giphytestapp.presentation.ui.recyclerviews.PaginationScrollListener
-import com.example.giphytestapp.presentation.viewmodels.AppViewModel
+import com.example.giphytestapp.presentation.viewmodels.CollectionViewModel
+import com.example.giphytestapp.presentation.viewmodels.NavigationViewModel
+import com.example.offline.presentation.viewmodels.NetworkViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 
@@ -25,7 +27,10 @@ class CollectionFragment: Fragment(), GifAdapter.Contract {
     private val scrollSensitivityStep: Int = 25
     private var scrollListener: PaginationScrollListener? = null
 
-    private val appViewModel by sharedViewModel<AppViewModel>()
+    private val networkVm by sharedViewModel<NetworkViewModel>()
+    private val navigationVm by sharedViewModel<NavigationViewModel>()
+    private val collectionVm by sharedViewModel<CollectionViewModel>()
+
     private val recyclerViewAdapter by lazy { binding.recyclerView.adapter as? GifAdapter }
 
     private val binding by lazy {
@@ -53,18 +58,18 @@ class CollectionFragment: Fragment(), GifAdapter.Contract {
             centerRadius = 30f
             start()
         }
-        appViewModel.collectionViewModel.loadGifToView(model, imageView, circularProgressDrawable)
+        collectionVm.loadGifToView(model, imageView, circularProgressDrawable)
     }
 
     override fun onGifClicked(position: Int) {
-        appViewModel.navigationViewModel.navigateTo(
+        navigationVm.navigateTo(
             DetailedFragment(),
             Bundle().also { it.putInt(DETAILED_GIF_KEY, position) }
         )
     }
 
     private fun setupStateObserver() {
-        appViewModel.collectionViewModel.collectionState.observe(viewLifecycleOwner) { state ->
+        collectionVm.state.observe(viewLifecycleOwner) { state ->
             if (state.gifs.isNotEmpty()) {
                 recyclerViewAdapter?.updateItems(state.gifs)
             }
@@ -107,10 +112,8 @@ class CollectionFragment: Fragment(), GifAdapter.Contract {
             override fun loadMoreItems() {
                 super.loadMoreItems()
 
-                appViewModel.processSearchQuery(
-                    queryIsNew = false,
-                    online = appViewModel.networkViewModel.networkState.value ?: true
-                )
+                collectionVm.getGifs(queryIsNew = false, navigationModel = navigationVm,
+                    online = networkVm.stateOnline.value ?: true)
             }
         }
         scrollListener?.let {

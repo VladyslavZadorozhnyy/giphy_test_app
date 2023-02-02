@@ -10,19 +10,24 @@ import androidx.core.view.doOnPreDraw
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.example.giphytestapp.R
-import com.example.giphytestapp.common.Constants
+import com.example.giphytestapp.common.Constants.LOADING_ITEM
 import com.example.giphytestapp.databinding.FragmentDetailedBinding
 import com.example.giphytestapp.domain.model.GifModel
 import com.example.giphytestapp.presentation.ui.dialogs.DeleteDialog
 import com.example.giphytestapp.presentation.ui.recyclerviews.GifDetailedAdapter
-import com.example.giphytestapp.presentation.viewmodels.AppViewModel
+import com.example.giphytestapp.presentation.viewmodels.CollectionViewModel
+import com.example.giphytestapp.presentation.viewmodels.NavigationViewModel
+import com.example.offline.presentation.viewmodels.NetworkViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 
 class DetailedFragment : Fragment(), GifDetailedAdapter.Contract {
     private val binding by lazy { FragmentDetailedBinding.inflate(layoutInflater) }
 
-    private val appViewModel by sharedViewModel<AppViewModel>()
+    private val networkVm by sharedViewModel<NetworkViewModel>()
+    private val navigationVm by sharedViewModel<NavigationViewModel>()
+    private val collectionVm by sharedViewModel<CollectionViewModel>()
+
     private val viewPagerAdapter by lazy { binding.viewPager.adapter as? GifDetailedAdapter }
 
     override fun onCreateView(
@@ -48,7 +53,7 @@ class DetailedFragment : Fragment(), GifDetailedAdapter.Contract {
             .setTitle(resources.getString(R.string.delete_dialog_title))
             .setMessage(resources.getString(R.string.delete_dialog_message))
             .setPositiveButton(resources.getString(R.string.delete_dialog_positive_button)) {
-                viewPagerAdapter?.let { appViewModel.collectionViewModel.removeGif(position) }
+                viewPagerAdapter?.let { collectionVm.removeGif(position) }
             }
             .setNegativeButton(resources.getString(R.string.delete_dialog_negative_button), null)
             .show()
@@ -60,11 +65,11 @@ class DetailedFragment : Fragment(), GifDetailedAdapter.Contract {
             centerRadius = 30f
             start()
         }
-        appViewModel.collectionViewModel.loadGifToView(model, imageView, circularProgressDrawable)
+        collectionVm.loadGifToView(model, imageView, circularProgressDrawable)
     }
 
     private fun setupStateObserver() {
-        appViewModel.collectionViewModel.collectionState.observe(viewLifecycleOwner) { state ->
+        collectionVm.state.observe(viewLifecycleOwner) { state ->
             viewPagerAdapter?.let {
                 if (it.firstSetup()) {
                     binding.viewPager.doOnPreDraw {
@@ -83,12 +88,11 @@ class DetailedFragment : Fragment(), GifDetailedAdapter.Contract {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 viewPagerAdapter?.let {
-                    if (position == appViewModel.collectionViewModel.collectionState.value?.gifs?.lastIndex
-                        && appViewModel.collectionViewModel.collectionState.value?.gifs?.lastOrNull() != Constants.LOADING_ITEM) {
-                        appViewModel.processSearchQuery(
-                            queryIsNew = false,
-                            online = appViewModel.networkViewModel.networkState.value ?: true
-                        )
+                    val currentGifs = collectionVm.state.value?.gifs
+
+                    if (position == currentGifs?.lastIndex && currentGifs.lastOrNull() != LOADING_ITEM) {
+                        collectionVm.getGifs(queryIsNew = false, navigationModel = navigationVm,
+                            online = networkVm.stateOnline.value ?: true)
                     }
                 }
             }
