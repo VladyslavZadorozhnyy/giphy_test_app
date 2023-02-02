@@ -13,7 +13,6 @@ import com.example.giphytestapp.domain.usecase.UploadGifsUseCase
 import com.example.giphytestapp.presentation.viewmodels.AppViewModel
 import com.example.giphytestapp.presentation.viewmodels.CollectionViewModel
 import com.example.giphytestapp.presentation.viewmodels.NavigationViewModel
-import com.example.offline.presentation.viewmodels.SearchesViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module

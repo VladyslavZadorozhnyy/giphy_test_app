@@ -23,7 +23,7 @@ val offlineModule = module {
 
     single { NetworkListener(androidApplication()) }
 
-    single { GifRoomDatabase.getDatabase(androidApplication()) }
+    single { GifRoomDatabase.getGifDao(androidApplication()) }
 
     single<GifRoomRepository> { GifRoomImpl(get()) }
 

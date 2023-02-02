@@ -15,7 +15,7 @@ abstract class GifRoomDatabase: RoomDatabase() {
     companion object {
         private var instance: GifRoomDatabase? = null
 
-        fun getDatabase(context: Context): GifRoomDatabase? {
+        fun getGifDao(context: Context): GifDao {
             synchronized(GifRoomDatabase::class.java) {
                 if (instance == null) {
                     instance = Room.databaseBuilder(
@@ -25,7 +25,7 @@ abstract class GifRoomDatabase: RoomDatabase() {
                     ).build()
                 }
             }
-            return instance
+            return instance!!.gifDao()
         }
     }
 }

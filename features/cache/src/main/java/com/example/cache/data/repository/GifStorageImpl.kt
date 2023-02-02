@@ -12,16 +12,14 @@ class GifStorageImpl: GifStorageRepository {
         createNoMediaFile()
     }
 
-    override suspend fun addToStorage(fileName: String, buffer: ByteBuffer?) {
-        buffer?.let {
-            val gifFile = File(Constants.DIR_PATH, fileName)
-            val output = FileOutputStream(gifFile)
-            val bytes = ByteArray(it.capacity())
+    override suspend fun addToStorage(fileName: String, buffer: ByteBuffer) {
+        val gifFile = File(Constants.DIR_PATH, fileName)
+        val output = FileOutputStream(gifFile)
+        val bytes = ByteArray(buffer.capacity())
 
-            (it.duplicate().clear() as ByteBuffer).get(bytes)
-            output.write(bytes, 0 ,bytes.size)
-            output.close()
-        }
+        (buffer.duplicate().clear() as ByteBuffer).get(bytes)
+        output.write(bytes, 0 ,bytes.size)
+        output.close()
     }
 
     override suspend fun removeFromStorage(fileName: String) {
